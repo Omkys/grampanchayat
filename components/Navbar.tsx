@@ -1,15 +1,15 @@
 "use client";
 import { LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface NavbarProps {
   language: "mr" | "en";
   setLanguage: (l: "mr" | "en") => void;
   activeSection: string;
-  setShowLogin: (v: boolean) => void;
 }
 
-export default function Navbar({ language, setLanguage, activeSection, setShowLogin }: NavbarProps) {
+export default function Navbar({ language, setLanguage, activeSection }: NavbarProps) {
   const nav = language === "mr"
     ? [
         { label: "मुख्यपृष्ठ", id: "home" },
@@ -63,9 +63,11 @@ export default function Navbar({ language, setLanguage, activeSection, setShowLo
         <div className="flex items-center gap-3">
           <Button size="sm" variant={language === "mr" ? "default" : "outline"} onClick={() => setLanguage("mr")}>मराठी</Button>
           <Button size="sm" variant={language === "en" ? "default" : "outline"} onClick={() => setLanguage("en")}>EN</Button>
-          <Button size="sm" className="bg-[#1f6f43] text-white" onClick={() => setShowLogin(true)}>
-            <LogIn size={14} /> {language === "mr" ? "लॉगिन" : "Login"}
-          </Button>
+          <Link href="/login">
+            <Button size="sm" className="bg-[#1f6f43] text-white">
+              <LogIn size={14} /> {language === "mr" ? "लॉगिन" : "Login"}
+            </Button>
+          </Link>
         </div>
       </div>
     </header>
