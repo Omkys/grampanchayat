@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Megaphone, Hammer, CalendarDays, UserCheck, ClipboardList, Landmark, Settings, LayoutDashboard } from "lucide-react";
+import { Megaphone, Hammer, CalendarDays, UserCheck, ClipboardList, Landmark, Settings, LayoutDashboard, MessageSquareWarning, BookOpen } from "lucide-react";
 
 const sidebarLinks = [
   { href: "/dashboard", label_mr: "विहंगावलोकन", label_en: "Overview", Icon: LayoutDashboard },
@@ -15,6 +15,8 @@ const sidebarLinks = [
   { href: "/dashboard/events", label_mr: "कार्यक्रम", label_en: "Events", Icon: CalendarDays },
   { href: "/dashboard/officials", label_mr: "पदाधिकारी", label_en: "Officials", Icon: UserCheck },
   { href: "/dashboard/applications", label_mr: "अर्ज", label_en: "Applications", Icon: ClipboardList },
+  { href: "/dashboard/complaints", label_mr: "तक्रारी", label_en: "Complaints", Icon: MessageSquareWarning },
+  { href: "/dashboard/schemes", label_mr: "शासन योजना", label_en: "Schemes", Icon: BookOpen },
   { href: "/dashboard/market-rates", label_mr: "बाजारभाव", label_en: "Market Rates", Icon: Landmark },
   { href: "/dashboard/settings", label_mr: "सेटिंग्ज", label_en: "Settings", Icon: Settings },
 ];

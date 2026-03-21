@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = getSupabaseAdmin();
     const body = await req.json();
-    const { name, mobile, details, service_type } = body;
+    const { name, mobile, details, service_type, citizen_id } = body;
 
     if (!name?.trim() || !mobile?.trim()) {
       return NextResponse.json({ error: "Name and mobile are required" }, { status: 400 });
@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       service_type: service_type || "takrar",
       form_data: { name, mobile, details },
       status: "pending",
+      ...(citizen_id ? { citizen_id } : {}),
     }).select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -1,39 +1,41 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Megaphone, Landmark, Users, CreditCard, Droplets, Hammer, Building2, Home, ClipboardList, ExternalLink, X } from "lucide-react";
+import { Megaphone, Landmark, ExternalLink, X } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const anim = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, transition: { duration: 0.6 }, viewport: { once: true } };
 
-const noticesData = {
+interface Notice { id: string; title_mr: string; title_en: string; date: string; description_mr: string; description_en: string; created_at: string; }
+interface Scheme { id: string; name_mr: string; name_en: string; url: string; }
+
+const fallbackNotices = {
   mr: [
-    { title: "ग्रामसभा सूचना", date: "15 Feb 2026", description: "ग्रामसभा दिनांक १५ फेब्रुवारी २०२६ रोजी सकाळी ११ वाजता आयोजित करण्यात येणार आहे. सर्व नागरिकांनी उपस्थित राहावे." },
+    { title: "ग्रामसभा सूचना", date: "15 Feb 2026", description: "ग्रामसभा दिनांक १५ फेब्रुवारी २०२६ रोजी सकाळी ११ वाजता आयोजित करण्यात येणार आहे." },
     { title: "पाणीपुरवठा सूचना", date: "18 Feb 2026", description: "पाणीपुरवठा देखभालीसाठी १८ फेब्रुवारी रोजी सकाळी ८ ते दुपारी २ पर्यंत बंद राहील." },
-    { title: "स्वच्छता अभियान", date: "20 Feb 2026", description: "गावात स्वच्छता अभियान राबविण्यात येणार आहे. सर्वांनी सहभाग घ्यावा." },
-    { title: "वीजपुरवठा सूचना", date: "25 Feb 2026", description: "वीज देखभाल कामामुळे २५ फेब्रुवारी रोजी सकाळी १० ते दुपारी १ पर्यंत वीजपुरवठा बंद राहील." },
+    { title: "स्वच्छता अभियान", date: "20 Feb 2026", description: "गावात स्वच्छता अभियान राबविण्यात येणार आहे." },
   ],
   en: [
-    { title: "Gram Sabha Notice", date: "15 Feb 2026", description: "Gram Sabha will be held on 15 Feb 2026 at 11 AM. All citizens are requested to attend." },
-    { title: "Water Supply Notice", date: "18 Feb 2026", description: "Water supply will remain closed on 18 Feb from 8 AM to 2 PM for maintenance." },
-    { title: "Cleanliness Drive", date: "20 Feb 2026", description: "A village cleanliness drive will be conducted. All villagers are encouraged to participate." },
-    { title: "Electricity Maintenance Notice", date: "25 Feb 2026", description: "Due to maintenance work, electricity supply will remain closed on 25 Feb from 10 AM to 1 PM." },
+    { title: "Gram Sabha Notice", date: "15 Feb 2026", description: "Gram Sabha will be held on 15 Feb 2026 at 11 AM." },
+    { title: "Water Supply Notice", date: "18 Feb 2026", description: "Water supply will remain closed on 18 Feb from 8 AM to 2 PM." },
+    { title: "Cleanliness Drive", date: "20 Feb 2026", description: "A village cleanliness drive will be conducted." },
   ],
 };
-
-const schemes = [
-  { Icon: Users, label: "PM Kisan Samman Nidhi / पंतप्रधान किसान सन्मान निधी", url: "https://pmkisan.gov.in/" },
-  { Icon: CreditCard, label: "MahaDBT Farmer Schemes / महाडीबीटी शेतकरी योजना", url: "https://mahadbt.maharashtra.gov.in/" },
-  { Icon: Droplets, label: "Agriculture Dept / कृषी विभाग योजना", url: "https://agricoop.nic.in/" },
-  { Icon: Hammer, label: "MGNREGA / मनरेगा", url: "https://nrega.nic.in/" },
-  { Icon: Building2, label: "Rural Development / ग्रामविकास विभाग", url: "https://rdd.maharashtra.gov.in/" },
-  { Icon: Home, label: "Maharashtra Housing / महाराष्ट्र गृहनिर्माण योजना", url: "https://housing.maharashtra.gov.in/" },
-  { Icon: ClipboardList, label: "PDS / सार्वजनिक वितरण प्रणाली", url: "https://mahafood.gov.in/" },
-];
 
 export default function NoticeAndSchemes({ language }: { language: "mr" | "en" }) {
   const [startIdx, setStartIdx] = useState(0);
   const [activeNotice, setActiveNotice] = useState<{ title: string; date: string; description: string } | null>(null);
-  const notices = noticesData[language];
+  const [dbNotices, setDbNotices] = useState<Notice[]>([]);
+  const [schemes, setSchemes] = useState<Scheme[]>([]);
+
+  useEffect(() => {
+    supabase.from("notices").select("*").order("created_at", { ascending: false }).limit(10).then(({ data }) => setDbNotices(data || []));
+    supabase.from("schemes").select("*").eq("is_active", true).order("sort_order", { ascending: true }).then(({ data }) => setSchemes(data || []));
+  }, []);
+
+  const notices = dbNotices.length > 0
+    ? dbNotices.map((n) => ({ title: language === "mr" ? (n.title_mr || n.title_en) : (n.title_en || n.title_mr), date: new Date(n.date || n.created_at).toLocaleDateString(), description: language === "mr" ? (n.description_mr || n.description_en || "") : (n.description_en || n.description_mr || "") }))
+    : fallbackNotices[language];
 
   return (
     <motion.section id="notice" className="py-14 px-6 bg-[#fff7ed]" {...anim}>
@@ -62,13 +64,15 @@ export default function NoticeAndSchemes({ language }: { language: "mr" | "en" }
             <Landmark size={18} /> {language === "mr" ? "महाराष्ट्र शासन योजना" : "Maharashtra Government Schemes"}
           </h3>
           <div className="bg-white rounded-xl shadow p-6 space-y-4 text-sm">
-            {schemes.map((s, i) => (
-              <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#f97316] transition group">
-                <s.Icon size={16} className="text-[#1f6f43]" />
-                <span>{s.label}</span>
-                <ExternalLink size={14} className="ml-auto opacity-60 group-hover:opacity-100" />
+            {schemes.length > 0 ? schemes.map((s) => (
+              <a key={s.id} href={s.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#f97316] transition group">
+                <Landmark size={16} className="text-[#1f6f43] shrink-0" />
+                <span>{language === "mr" ? (s.name_mr || s.name_en) : (s.name_en || s.name_mr)}</span>
+                <ExternalLink size={14} className="ml-auto opacity-60 group-hover:opacity-100 shrink-0" />
               </a>
-            ))}
+            )) : (
+              <p className="text-gray-400 text-sm">No schemes available.</p>
+            )}
           </div>
         </div>
       </div>

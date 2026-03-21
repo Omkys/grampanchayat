@@ -79,6 +79,10 @@ export default function Navbar({ language, setLanguage, activeSection }: NavbarP
 
           {loading ? null : user ? (
             <>
+              <div className="hidden md:flex flex-col items-end text-xs leading-tight">
+                <span className="font-medium text-[#1f6f43]">{user.full_name || user.email}</span>
+                {user.full_name && <span className="text-gray-400">{user.email}</span>}
+              </div>
               <Link href={dashboardLink}>
                 <Button size="sm" variant="outline" className="gap-1">
                   <LayoutDashboard size={14} />

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Landmark, Home, Droplets, AlertCircle, Building2, CreditCard, Briefcase, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/lib/AuthContext";
 
 const anim = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, transition: { duration: 0.6 }, viewport: { once: true } };
 
@@ -39,6 +40,7 @@ export default function CitizenServices({ language }: { language: "mr" | "en" })
   const [formData, setFormData] = useState({ name: "", mobile: "", details: "" });
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ success: boolean; application_no?: string; error?: string } | null>(null);
+  const { user } = useAuthContext();
 
   const handleSubmit = async () => {
     if (!formData.name.trim() || !formData.mobile.trim()) {
@@ -55,6 +57,7 @@ export default function CitizenServices({ language }: { language: "mr" | "en" })
         body: JSON.stringify({
           ...formData,
           service_type: serviceTypeMap[label] || "takrar",
+          citizen_id: user?.id || null,
         }),
       });
       const data = await res.json();

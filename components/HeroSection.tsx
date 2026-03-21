@@ -25,6 +25,10 @@ export default function HeroSection({ language, heroIndex, setHeroIndex }: Props
       <button onClick={() => setHeroIndex((p) => (p === 0 ? heroImages.length - 1 : p - 1))} className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow z-20 cursor-pointer">‹</button>
       <button onClick={() => setHeroIndex((p) => (p + 1) % heroImages.length)} className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow z-20 cursor-pointer">›</button>
       <div className="relative z-10 text-center px-6">
+        <div className="mb-4 inline-block bg-red-600/90 border-2 border-red-400 rounded-lg px-6 py-3 animate-pulse">
+          <p className="text-lg md:text-xl font-bold text-white">⚠️ हे एक चाचणी (टेस्टिंग) संकेतस्थळ आहे — ही अधिकृत वेबसाइट नाही ⚠️</p>
+          <p className="text-sm md:text-base font-semibold text-white/90">⚠️ This is a testing website — This is NOT an official website ⚠️</p>
+        </div>
         <h2 className="text-4xl md:text-5xl font-bold mb-10 drop-shadow-lg">{title}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-4xl mx-auto">
           <AnimatedCounter value={2500} label={language === "mr" ? "लोकसंख्या" : "Population"} Icon={Users} />

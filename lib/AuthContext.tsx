@@ -6,6 +6,7 @@ interface AuthUser {
   id: string;
   email: string;
   role: string;
+  full_name: string;
 }
 
 interface AuthContextType {
@@ -24,12 +25,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setUser(null); setLoading(false); return; }
 
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single();
+    const { data: profile } = await supabase.from("profiles").select("role, full_name").eq("id", session.user.id).single();
 
     setUser({
       id: session.user.id,
       email: session.user.email!,
       role: profile?.role || "citizen",
+      full_name: profile?.full_name || "",
     });
     setLoading(false);
   };
