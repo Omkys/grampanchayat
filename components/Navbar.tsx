@@ -1,7 +1,10 @@
 "use client";
-import { LogIn } from "lucide-react";
+import { LogIn, User, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAuthContext } from "@/lib/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 interface NavbarProps {
   language: "mr" | "en";
@@ -10,6 +13,9 @@ interface NavbarProps {
 }
 
 export default function Navbar({ language, setLanguage, activeSection }: NavbarProps) {
+  const { user, loading } = useAuthContext();
+  const router = useRouter();
+
   const nav = language === "mr"
     ? [
         { label: "मुख्यपृष्ठ", id: "home" },
@@ -31,6 +37,13 @@ export default function Navbar({ language, setLanguage, activeSection }: NavbarP
       ];
 
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+  };
+
+  const dashboardLink = user?.role === "admin" || user?.role === "official" ? "/dashboard" : "/citizen";
 
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-[#f97316]/30 via-white/70 to-[#1f6f43]/30 backdrop-blur-md shadow-md border-b border-white/30">
@@ -63,11 +76,29 @@ export default function Navbar({ language, setLanguage, activeSection }: NavbarP
         <div className="flex items-center gap-3">
           <Button size="sm" variant={language === "mr" ? "default" : "outline"} onClick={() => setLanguage("mr")}>मराठी</Button>
           <Button size="sm" variant={language === "en" ? "default" : "outline"} onClick={() => setLanguage("en")}>EN</Button>
-          <Link href="/login">
-            <Button size="sm" className="bg-[#1f6f43] text-white">
-              <LogIn size={14} /> {language === "mr" ? "लॉगिन" : "Login"}
-            </Button>
-          </Link>
+
+          {loading ? null : user ? (
+            <>
+              <Link href={dashboardLink}>
+                <Button size="sm" variant="outline" className="gap-1">
+                  <LayoutDashboard size={14} />
+                  {user.role === "admin" || user.role === "official"
+                    ? (language === "mr" ? "डॅशबोर्ड" : "Dashboard")
+                    : (language === "mr" ? "माझे खाते" : "My Account")}
+                </Button>
+              </Link>
+              <Button size="sm" variant="outline" onClick={handleLogout} className="gap-1">
+                <User size={14} />
+                {language === "mr" ? "लॉगआउट" : "Logout"}
+              </Button>
+            </>
+          ) : (
+            <Link href="/login">
+              <Button size="sm" className="bg-[#1f6f43] text-white">
+                <LogIn size={14} /> {language === "mr" ? "लॉगिन" : "Login"}
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>

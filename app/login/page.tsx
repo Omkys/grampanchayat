@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAuthContext } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { refresh } = useAuthContext();
 
   const handleLogin = async () => {
     setError("");
@@ -18,6 +20,8 @@ export default function LoginPage() {
     setLoading(true);
     const { data, error: authErr } = await supabase.auth.signInWithPassword({ email, password });
     if (authErr) { setError(authErr.message); setLoading(false); return; }
+
+    await refresh();
 
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
     const role = profile?.role || "citizen";
