@@ -34,20 +34,22 @@ export default function MyComplaintsPage() {
     if (!form.subject.trim()) { setResult({ success: false, error: "Subject is required" }); return; }
     setSubmitting(true);
     setResult(null);
-    const complaint_no = `CMP-${new Date().getFullYear()}-${Math.floor(Math.random() * 99999).toString().padStart(5, "0")}`;
-    const { error } = await supabase.from("complaints").insert({
-      complaint_no,
-      complaint_type: form.complaint_type,
-      subject: form.subject,
-      description: form.description,
-      citizen_id: user!.id,
-      status: "pending",
-    });
-    if (error) { setResult({ success: false, error: error.message }); }
-    else {
-      setResult({ success: true, complaint_no });
-      setForm({ complaint_type: "water", subject: "", description: "" });
-      load();
+    try {
+      const res = await fetch("/api/complaints", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, citizen_id: user!.id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setResult({ success: true, complaint_no: data.complaint_no });
+        setForm({ complaint_type: "water", subject: "", description: "" });
+        load();
+      } else {
+        setResult({ success: false, error: data.error });
+      }
+    } catch {
+      setResult({ success: false, error: "Network error" });
     }
     setSubmitting(false);
   };
