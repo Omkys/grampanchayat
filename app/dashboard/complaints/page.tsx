@@ -43,7 +43,7 @@ export default function AdminComplaintsPage() {
         <h1 className="text-2xl font-bold text-[#1f6f43]">Complaints</h1>
         <select value={filter} onChange={(e) => setFilter(e.target.value)} className="border rounded px-3 py-2 text-sm">
           <option value="all">All</option>
-          <option value="pending">Pending</option>
+          <option value="open">Open</option>
           <option value="in_progress">In Progress</option>
           <option value="resolved">Resolved</option>
           <option value="closed">Closed</option>
@@ -70,7 +70,7 @@ export default function AdminComplaintsPage() {
             {editing === c.id && (
               <div className="mt-3 flex gap-2 items-end">
                 <select value={status} onChange={(e) => setStatus(e.target.value)} className="border rounded px-3 py-2 text-sm">
-                  <option value="pending">Pending</option>
+                  <option value="open">Open</option>
                   <option value="in_progress">In Progress</option>
                   <option value="resolved">Resolved</option>
                   <option value="closed">Closed</option>

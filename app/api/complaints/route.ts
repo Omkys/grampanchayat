@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       subject,
       description: description || null,
       citizen_id: citizen_id || null,
-      status: "pending",
+      status: "open",
     }).select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

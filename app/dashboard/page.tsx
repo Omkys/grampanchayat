@@ -19,7 +19,7 @@ export default function DashboardPage() {
         supabase.from("complaints").select("id", { count: "exact", head: true }),
         supabase.from("officials").select("id", { count: "exact", head: true }),
         supabase.from("applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("complaints").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("complaints").select("id", { count: "exact", head: true }).eq("status", "open"),
       ]);
       setStats({
         notices: n.count || 0, works: w.count || 0, events: e.count || 0,
