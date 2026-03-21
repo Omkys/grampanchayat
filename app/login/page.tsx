@@ -36,18 +36,22 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#fdfaf5] flex items-center justify-center px-4">
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-sm">
-        <h2 className="text-xl font-semibold text-center text-[#1f6f43] mb-6">लॉगिन / Login</h2>
+        <div className="flex justify-center mb-4">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" className="w-16 h-16" alt="Emblem" />
+        </div>
+        <h2 className="text-xl font-semibold text-center text-[#1f6f43] mb-1">ग्रामपंचायत- जावळके</h2>
+        <p className="text-center text-sm text-gray-500 mb-6">लॉगिन / Login</p>
         {error && <p className="text-red-500 text-sm mb-3 text-center">{error}</p>}
         <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border rounded-md px-3 py-2 mb-3 text-sm" />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-md px-3 py-2 mb-4 text-sm" />
+        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border rounded-md px-3 py-2 mb-4 text-sm" onKeyDown={(e) => e.key === "Enter" && handleLogin()} />
         <Button className="w-full bg-[#1f6f43] text-white" onClick={handleLogin} disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Logging in..." : "लॉगिन / Login"}
         </Button>
         <p className="text-center text-sm mt-4 text-gray-600">
           नवीन नोंदणी / New here? <Link href="/register" className="text-[#1f6f43] font-medium underline">Register</Link>
         </p>
         <p className="text-center text-sm mt-2">
-          <Link href="/" className="text-gray-500 underline">← Back to Home</Link>
+          <Link href="/" className="text-gray-500 underline">← मुख्यपृष्ठ / Home</Link>
         </p>
       </div>
     </div>
