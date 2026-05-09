@@ -12,7 +12,6 @@ const villageLeaders = [
 const govtLeaders = [
   { role_mr: "मुख्यमंत्री", role_en: "Chief Minister", color: "border-[#1f6f43]", bg: "bg-[#1f6f43]/10", img: "/images/leaders/cm.jpg" },
   { role_mr: "उपमुख्यमंत्री", role_en: "Dy. CM", color: "border-[#1f6f43]", bg: "bg-[#1f6f43]/10", img: "/images/leaders/dcm.jpg" },
-  { role_mr: "मंत्री", role_en: "Minister", color: "border-[#1f6f43]", bg: "bg-[#1f6f43]/10", img: "/images/leaders/minister.jpg" },
 ];
 
 function LeaderAvatar({ item }: { item: typeof villageLeaders[0] }) {

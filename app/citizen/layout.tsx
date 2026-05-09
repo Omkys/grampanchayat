@@ -46,7 +46,7 @@ export default function CitizenLayout({ children }: { children: React.ReactNode 
             <div>
               <p className="text-[11px] text-gray-600">Government of Maharashtra</p>
               <Link href="/" className="text-base font-semibold text-[#1f6f43]">
-                {lang === "mr" ? "ग्रामपंचायत- जावळके" : "Gram Panchayat - Jawalke"}
+                {lang === "mr" ? "ग्रामपंचायत बावी" : "Gram Panchayat Bavi"}
               </Link>
             </div>
           </div>

@@ -13,7 +13,7 @@ const heroImages = [
 interface Props { language: "mr" | "en"; heroIndex: number; setHeroIndex: (fn: (p: number) => number) => void; }
 
 export default function HeroSection({ language, heroIndex, setHeroIndex }: Props) {
-  const title = language === "mr" ? "ग्रामपंचायत- जावळके" : "Gram Panchayat - Jawalke";
+  const title = language === "mr" ? "ग्रामपंचायत बावी" : "Gram Panchayat Bavi";
   return (
     <motion.section
       id="home"
@@ -31,7 +31,7 @@ export default function HeroSection({ language, heroIndex, setHeroIndex }: Props
         </div>
         <h2 className="text-4xl md:text-5xl font-bold mb-10 drop-shadow-lg">{title}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-4xl mx-auto">
-          <AnimatedCounter value={2500} label={language === "mr" ? "लोकसंख्या" : "Population"} Icon={Users} />
+          <AnimatedCounter value={1082} label={language === "mr" ? "लोकसंख्या" : "Population"} Icon={Users} />
           <AnimatedCounter value={120} label={language === "mr" ? "एकूण कामे" : "Total Works"} Icon={Hammer} />
           <AnimatedCounter value={45} label={language === "mr" ? "योजना" : "Schemes"} Icon={ClipboardList} />
           <AnimatedCounter value={18} label={language === "mr" ? "सुविधा" : "Facilities"} Icon={School} />

@@ -54,7 +54,7 @@ export default function Navbar({ language, setLanguage, activeSection }: NavbarP
           <div>
             <p className="text-[11px] text-gray-600">Government of Maharashtra</p>
             <h1 className="text-base font-semibold text-[#1f6f43]">
-              {language === "mr" ? "ग्रामपंचायत- जावळके" : "Gram Panchayat - Jawalke"}
+              {language === "mr" ? "ग्रामपंचायत बावी" : "Gram Panchayat Bavi"}
             </h1>
           </div>
         </div>

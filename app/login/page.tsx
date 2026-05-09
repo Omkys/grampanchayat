@@ -39,7 +39,7 @@ export default function LoginPage() {
         <div className="flex justify-center mb-4">
           <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" className="w-16 h-16" alt="Emblem" />
         </div>
-        <h2 className="text-xl font-semibold text-center text-[#1f6f43] mb-1">ग्रामपंचायत- जावळके</h2>
+        <h2 className="text-xl font-semibold text-center text-[#1f6f43] mb-1">ग्रामपंचायत बावी</h2>
         <p className="text-center text-sm text-gray-500 mb-6">लॉगिन / Login</p>
         {error && <p className="text-red-500 text-sm mb-3 text-center">{error}</p>}
         <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border rounded-md px-3 py-2 mb-3 text-sm" />
