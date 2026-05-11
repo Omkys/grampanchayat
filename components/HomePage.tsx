@@ -11,6 +11,7 @@ import WorksCarousel from "@/components/WorksCarousel";
 import EventsCarousel from "@/components/EventsCarousel";
 import OfficialsGrid from "@/components/OfficialsGrid";
 import Footer from "@/components/Footer";
+import { mergeSiteSettings } from "@/lib/site-settings";
 
 const navIds = ["home", "notice", "about", "services", "works", "events", "officials"];
 
@@ -18,6 +19,14 @@ export default function HomePage() {
   const [language, setLanguage] = useState<"mr" | "en">("mr");
   const [heroIndex, setHeroIndex] = useState(0);
   const [activeSection, setActiveSection] = useState("home");
+  const [siteSettings, setSiteSettings] = useState(() => mergeSiteSettings({}));
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data) => setSiteSettings(mergeSiteSettings(data)))
+      .catch(() => setSiteSettings(mergeSiteSettings({})));
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,17 +44,23 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#fdfaf5] text-[#1f3d2b]">
-      <Navbar language={language} setLanguage={setLanguage} activeSection={activeSection} />
-      <HeroSection language={language} heroIndex={heroIndex} setHeroIndex={setHeroIndex} />
+      <Navbar
+        language={language}
+        setLanguage={setLanguage}
+        activeSection={activeSection}
+        gpNameMr={siteSettings.gp_name_mr}
+        gpNameEn={siteSettings.gp_name_en}
+      />
+      <HeroSection language={language} heroIndex={heroIndex} setHeroIndex={setHeroIndex} settings={siteSettings} />
       <LeadershipStrip />
       <NoticeAndSchemes language={language} />
-      <AboutSection language={language} />
+      <AboutSection language={language} aboutMr={siteSettings.about_mr} aboutEn={siteSettings.about_en} />
       <CitizenServices language={language} />
       <AgriSection language={language} />
-      <WorksCarousel />
-      <EventsCarousel />
+      <WorksCarousel language={language} />
+      <EventsCarousel language={language} />
       <OfficialsGrid language={language} />
-      <Footer language={language} />
+      <Footer language={language} settings={siteSettings} />
     </div>
   );
 }

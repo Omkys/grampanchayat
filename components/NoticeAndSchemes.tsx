@@ -6,8 +6,16 @@ import { supabase } from "@/lib/supabase";
 
 const anim = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, transition: { duration: 0.6 }, viewport: { once: true } };
 
-interface Notice { id: string; title_mr: string; title_en: string; date: string; description_mr: string; description_en: string; created_at: string; }
-interface Scheme { id: string; name_mr: string; name_en: string; url: string; }
+interface Notice {
+  id: string;
+  title_mr: string;
+  title_en: string | null;
+  body_mr: string | null;
+  body_en: string | null;
+  published_at: string | null;
+  created_at: string;
+}
+interface Scheme { id: string; name_mr: string | null; name_en: string | null; url: string | null; }
 
 const fallbackNotices = {
   mr: [
@@ -29,13 +37,21 @@ export default function NoticeAndSchemes({ language }: { language: "mr" | "en" }
   const [schemes, setSchemes] = useState<Scheme[]>([]);
 
   useEffect(() => {
-    supabase.from("notices").select("*").order("created_at", { ascending: false }).limit(10).then(({ data }) => setDbNotices(data || []));
+    supabase.from("notices").select("*").eq("is_active", true).order("published_at", { ascending: false }).limit(10).then(({ data }) => setDbNotices(data || []));
     supabase.from("schemes").select("*").eq("is_active", true).order("sort_order", { ascending: true }).then(({ data }) => setSchemes(data || []));
   }, []);
 
-  const notices = dbNotices.length > 0
-    ? dbNotices.map((n) => ({ title: language === "mr" ? (n.title_mr || n.title_en) : (n.title_en || n.title_mr), date: new Date(n.date || n.created_at).toLocaleDateString(), description: language === "mr" ? (n.description_mr || n.description_en || "") : (n.description_en || n.description_mr || "") }))
-    : fallbackNotices[language];
+  const notices =
+    dbNotices.length > 0
+      ? dbNotices.map((n) => ({
+          title: (language === "mr" ? (n.title_mr || n.title_en) : (n.title_en || n.title_mr)) || "",
+          date: new Date(n.published_at || n.created_at).toLocaleDateString(),
+          description:
+            language === "mr"
+              ? (n.body_mr || n.body_en || "")
+              : (n.body_en || n.body_mr || ""),
+        }))
+      : fallbackNotices[language];
 
   return (
     <motion.section id="notice" className="py-14 px-6 bg-[#fff7ed]" {...anim}>
@@ -65,7 +81,7 @@ export default function NoticeAndSchemes({ language }: { language: "mr" | "en" }
           </h3>
           <div className="bg-white rounded-xl shadow p-6 space-y-4 text-sm">
             {schemes.length > 0 ? schemes.map((s) => (
-              <a key={s.id} href={s.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#f97316] transition group">
+              <a key={s.id} href={s.url || "#"} target={s.url ? "_blank" : undefined} rel={s.url ? "noopener noreferrer" : undefined} className="flex items-center gap-3 hover:text-[#f97316] transition group">
                 <Landmark size={16} className="text-[#1f6f43] shrink-0" />
                 <span>{language === "mr" ? (s.name_mr || s.name_en) : (s.name_en || s.name_mr)}</span>
                 <ExternalLink size={14} className="ml-auto opacity-60 group-hover:opacity-100 shrink-0" />

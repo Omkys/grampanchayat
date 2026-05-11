@@ -10,9 +10,11 @@ interface NavbarProps {
   language: "mr" | "en";
   setLanguage: (l: "mr" | "en") => void;
   activeSection: string;
+  gpNameMr?: string;
+  gpNameEn?: string;
 }
 
-export default function Navbar({ language, setLanguage, activeSection }: NavbarProps) {
+export default function Navbar({ language, setLanguage, activeSection, gpNameMr, gpNameEn }: NavbarProps) {
   const { user, loading } = useAuthContext();
   const router = useRouter();
 
@@ -54,7 +56,7 @@ export default function Navbar({ language, setLanguage, activeSection }: NavbarP
           <div>
             <p className="text-[11px] text-gray-600">Government of Maharashtra</p>
             <h1 className="text-base font-semibold text-[#1f6f43]">
-              {language === "mr" ? "ग्रामपंचायत बावी" : "Gram Panchayat Bavi"}
+              {language === "mr" ? (gpNameMr || "ग्रामपंचायत जावळके") : (gpNameEn || "Grampanchayat Jawalke")}
             </h1>
           </div>
         </div>
