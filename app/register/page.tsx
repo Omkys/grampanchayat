@@ -53,7 +53,8 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-[#fdfaf5] flex items-center justify-center px-4">
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-sm">
-        <h2 className="text-xl font-semibold text-center text-[#1f6f43] mb-6">नवीन नोंदणी / Register</h2>
+        <h2 className="text-xl font-semibold text-center text-[#1f6f43] mb-1">ग्रामपंचायत बावी</h2>
+        <p className="text-center text-sm text-gray-500 mb-6">नवीन नोंदणी / Register</p>
         {error && <p className="text-red-500 text-sm mb-3 text-center">{error}</p>}
         <input type="text" placeholder="नाव / Full Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border rounded-md px-3 py-2 mb-3 text-sm" />
         <input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full border rounded-md px-3 py-2 mb-3 text-sm" />

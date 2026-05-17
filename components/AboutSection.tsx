@@ -1,8 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { Info } from "lucide-react";
-
-const anim = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, transition: { duration: 0.6 }, viewport: { once: true } };
+import { sectionAnim } from "@/lib/section-anim";
 
 export default function AboutSection({
   language,
@@ -20,7 +19,7 @@ export default function AboutSection({
       : (aboutEn ||
         "Gram Panchayat ensures rural development. The Gram Panchayat works for the holistic development of the village. Key focus areas include water supply, roads, sanitation, education, and implementation of welfare schemes.");
   return (
-    <motion.section id="about" className="py-14 px-6 bg-white" {...anim}>
+    <motion.section id="about" className="py-14 px-6 bg-white" {...sectionAnim}>
       <div className="max-w-5xl mx-auto text-center">
         <h3 className="text-2xl font-semibold mb-6 text-[#1f6f43] flex items-center justify-center gap-2">
           <Info size={20} /> {language === "mr" ? "ग्रामपंचायत विषयी" : "About Gram Panchayat"}

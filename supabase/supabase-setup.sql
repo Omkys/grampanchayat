@@ -1,5 +1,5 @@
 -- ============================================
--- Grampanchayat Jawalke - Full Supabase Setup
+-- Grampanchayat Bavi - Full Supabase Setup
 -- Run this in a new Supabase project's SQL Editor
 -- ============================================
 
@@ -48,8 +48,22 @@ CREATE TABLE events (
   description_mr TEXT,
   description_en TEXT,
   location TEXT,
+  image_url TEXT,
+  sort_order INT DEFAULT 0,
+  registration_open BOOLEAN DEFAULT true,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE event_registrations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+  profile_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  full_name TEXT NOT NULL,
+  mobile TEXT NOT NULL,
+  email TEXT,
+  registered_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (event_id, mobile)
 );
 
 -- 5. MARKET RATES
@@ -104,17 +118,32 @@ CREATE TABLE works (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title_mr TEXT NOT NULL,
   title_en TEXT,
+  description_mr TEXT,
+  description_en TEXT,
+  image_url TEXT,
   status TEXT DEFAULT 'ongoing' CHECK (status IN ('ongoing', 'completed', 'planned')),
   budget_inr NUMERIC DEFAULT 0,
   contractor TEXT,
   start_date DATE,
   end_date DATE,
   progress INT DEFAULT 0,
+  sort_order INT DEFAULT 0,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 10. SETTINGS (key-value store)
+-- 10. LEADERS (home page leadership strip)
+CREATE TABLE leaders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  designation TEXT NOT NULL,
+  image_url TEXT,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 11. SETTINGS (key-value store)
 CREATE TABLE settings (
   key TEXT PRIMARY KEY,
   value TEXT,
@@ -134,6 +163,8 @@ ALTER TABLE notices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE officials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE schemes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE works ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leaders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE event_registrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 
 -- Profiles
@@ -171,6 +202,9 @@ CREATE POLICY "Service role full access schemes" ON schemes FOR ALL USING (auth.
 CREATE POLICY "Public read works" ON works FOR SELECT USING (true);
 CREATE POLICY "Service role full access works" ON works FOR ALL USING (auth.role() = 'service_role');
 
+CREATE POLICY "Public read leaders" ON leaders FOR SELECT USING (true);
+CREATE POLICY "Service role full access leaders" ON leaders FOR ALL USING (auth.role() = 'service_role');
+
 CREATE POLICY "Public read settings" ON settings FOR SELECT USING (true);
 CREATE POLICY "Service role full access settings" ON settings FOR ALL USING (auth.role() = 'service_role');
 
@@ -202,9 +236,19 @@ CREATE POLICY "Staff manage market_rates" ON market_rates FOR ALL TO authenticat
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'official')))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'official')));
 
+CREATE POLICY "Staff manage leaders" ON leaders FOR ALL TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'official')))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'official')));
+
 CREATE POLICY "Staff manage settings" ON settings FOR ALL TO authenticated
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'official')))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'official')));
+
+CREATE POLICY "Staff read event registrations" ON event_registrations FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'official')));
+
+CREATE POLICY "Staff delete event registrations" ON event_registrations FOR DELETE TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'official')));
 
 CREATE POLICY "Staff manage applications" ON applications FOR ALL TO authenticated
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'official')))
@@ -218,8 +262,8 @@ CREATE POLICY "Staff manage complaints" ON complaints FOR ALL TO authenticated
 -- SEED DEFAULT SETTINGS
 -- ============================================
 INSERT INTO settings (key, value) VALUES
-  ('gp_name_mr', 'ग्रामपंचायत जावळके'),
-  ('gp_name_en', 'Grampanchayat Jawalke'),
+  ('gp_name_mr', 'ग्रामपंचायत बावी'),
+  ('gp_name_en', 'Grampanchayat Bavi'),
   ('gp_mobile', ''),
   ('gp_email', ''),
   ('population', ''),

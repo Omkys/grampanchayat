@@ -1,7 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-
-const anim = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, transition: { duration: 0.6 }, viewport: { once: true } };
+import { sectionAnim } from "@/lib/section-anim";
 
 export default function Footer({ language, settings }: { language: "mr" | "en"; settings: Record<string, string> }) {
   const title = language === "mr" ? settings.gp_name_mr : settings.gp_name_en;
@@ -10,7 +9,7 @@ export default function Footer({ language, settings }: { language: "mr" | "en"; 
   const officer = language === "mr" ? settings.gp_officer_mr : settings.gp_officer_en;
   const admin = language === "mr" ? settings.gp_admin_mr : settings.gp_admin_en;
   return (
-    <motion.footer className="bg-[#1f6f43] text-white py-10 mt-10" {...anim}>
+    <motion.footer className="bg-[#1f6f43] text-white py-10 mt-10" {...sectionAnim}>
       <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8 text-sm">
         <div>
           <h4 className="font-semibold mb-3">{language === "mr" ? "संपर्क तपशील" : "Contact Details"}</h4>

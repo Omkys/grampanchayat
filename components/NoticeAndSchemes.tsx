@@ -1,10 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useLivePoll } from "@/lib/use-live-poll";
 import { motion, AnimatePresence } from "framer-motion";
 import { Megaphone, Landmark, ExternalLink, X } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-
-const anim = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, transition: { duration: 0.6 }, viewport: { once: true } };
+import { sectionAnim } from "@/lib/section-anim";
 
 interface Notice {
   id: string;
@@ -36,16 +35,36 @@ export default function NoticeAndSchemes({ language }: { language: "mr" | "en" }
   const [dbNotices, setDbNotices] = useState<Notice[]>([]);
   const [schemes, setSchemes] = useState<Scheme[]>([]);
 
-  useEffect(() => {
-    supabase.from("notices").select("*").eq("is_active", true).order("published_at", { ascending: false }).limit(10).then(({ data }) => setDbNotices(data || []));
-    supabase.from("schemes").select("*").eq("is_active", true).order("sort_order", { ascending: true }).then(({ data }) => setSchemes(data || []));
+  const loadContent = useCallback(async () => {
+    try {
+      const [noticesRes, schemesRes] = await Promise.all([
+        fetch("/api/notices", { cache: "no-store" }),
+        fetch("/api/schemes", { cache: "no-store" }),
+      ]);
+      const noticesBody = noticesRes.ok ? await noticesRes.json() : [];
+      const schemesBody = schemesRes.ok ? await schemesRes.json() : [];
+      setDbNotices(Array.isArray(noticesBody) ? noticesBody : []);
+      setSchemes(Array.isArray(schemesBody) ? schemesBody : []);
+    } catch {
+      setDbNotices([]);
+      setSchemes([]);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadContent();
+  }, [loadContent]);
+
+  useLivePoll(loadContent, { runOnMount: false });
 
   const notices =
     dbNotices.length > 0
       ? dbNotices.map((n) => ({
           title: (language === "mr" ? (n.title_mr || n.title_en) : (n.title_en || n.title_mr)) || "",
-          date: new Date(n.published_at || n.created_at).toLocaleDateString(),
+          date: new Date(n.published_at || n.created_at).toLocaleDateString(
+            language === "mr" ? "mr-IN" : "en-IN",
+            { dateStyle: "medium" }
+          ),
           description:
             language === "mr"
               ? (n.body_mr || n.body_en || "")
@@ -54,7 +73,7 @@ export default function NoticeAndSchemes({ language }: { language: "mr" | "en" }
       : fallbackNotices[language];
 
   return (
-    <motion.section id="notice" className="py-14 px-6 bg-[#fff7ed]" {...anim}>
+    <motion.section id="notice" className="py-14 px-6 bg-[#fff7ed]" {...sectionAnim}>
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10">
         <div>
           <h3 className="text-2xl font-semibold mb-6 text-[#1f6f43] flex items-center gap-2">
@@ -80,14 +99,37 @@ export default function NoticeAndSchemes({ language }: { language: "mr" | "en" }
             <Landmark size={18} /> {language === "mr" ? "महाराष्ट्र शासन योजना" : "Maharashtra Government Schemes"}
           </h3>
           <div className="bg-white rounded-xl shadow p-6 space-y-4 text-sm">
-            {schemes.length > 0 ? schemes.map((s) => (
-              <a key={s.id} href={s.url || "#"} target={s.url ? "_blank" : undefined} rel={s.url ? "noopener noreferrer" : undefined} className="flex items-center gap-3 hover:text-[#f97316] transition group">
-                <Landmark size={16} className="text-[#1f6f43] shrink-0" />
-                <span>{language === "mr" ? (s.name_mr || s.name_en) : (s.name_en || s.name_mr)}</span>
-                <ExternalLink size={14} className="ml-auto opacity-60 group-hover:opacity-100 shrink-0" />
-              </a>
-            )) : (
-              <p className="text-gray-400 text-sm">No schemes available.</p>
+            {schemes.length > 0 ? (
+              schemes.map((s) => {
+                const label = language === "mr" ? s.name_mr || s.name_en : s.name_en || s.name_mr;
+                const href = s.url?.trim();
+                const inner = (
+                  <>
+                    <Landmark size={16} className="text-[#1f6f43] shrink-0" />
+                    <span>{label}</span>
+                    {href ? <ExternalLink size={14} className="ml-auto opacity-60 group-hover:opacity-100 shrink-0" /> : null}
+                  </>
+                );
+                return href ? (
+                  <a
+                    key={s.id}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 hover:text-[#f97316] transition group"
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={s.id} className="flex items-center gap-3 text-gray-800">
+                    {inner}
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-gray-400 text-sm">
+                {language === "mr" ? "योजना उपलब्ध नाहीत. डॅशबोर्ड → शासन योजना मधून जोडा." : "No schemes yet. Add them from Dashboard → Schemes."}
+              </p>
             )}
           </div>
         </div>

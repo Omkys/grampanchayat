@@ -3,8 +3,8 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/AuthContext";
 
 export const metadata: Metadata = {
-  title: "ग्रामपंचायत बावी | Gram Panchayat Bavi",
-  description: "Official website of Gram Panchayat Bavi, Maharashtra",
+  title: "ग्रामपंचायत बावी | Grampanchayat Bavi",
+  description: "Official website of Grampanchayat Bavi, Maharashtra",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

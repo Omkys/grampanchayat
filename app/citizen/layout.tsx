@@ -5,7 +5,7 @@ import { useAuthContext } from "@/lib/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const linksData = {
   mr: [
@@ -26,8 +26,21 @@ export default function CitizenLayout({ children }: { children: React.ReactNode 
   const router = useRouter();
   const [lang, setLang] = useState<"mr" | "en">("mr");
 
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [loading, user, router]);
+
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  if (!user) { router.push("/login"); return null; }
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-sm text-gray-500">
+        Redirecting to sign in…
+      </div>
+    );
+  }
 
   const links = linksData[lang];
 
@@ -46,7 +59,7 @@ export default function CitizenLayout({ children }: { children: React.ReactNode 
             <div>
               <p className="text-[11px] text-gray-600">Government of Maharashtra</p>
               <Link href="/" className="text-base font-semibold text-[#1f6f43]">
-                {lang === "mr" ? "ग्रामपंचायत बावी" : "Gram Panchayat Bavi"}
+                {lang === "mr" ? "ग्रामपंचायत बावी" : "Grampanchayat Bavi"}
               </Link>
             </div>
           </div>

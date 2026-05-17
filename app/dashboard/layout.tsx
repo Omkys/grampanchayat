@@ -5,8 +5,8 @@ import { useAuthContext } from "@/lib/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Megaphone, Hammer, CalendarDays, UserCheck, ClipboardList, Landmark, Settings, LayoutDashboard, MessageSquareWarning, BookOpen } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Megaphone, Hammer, CalendarDays, UserCheck, ClipboardList, Landmark, Settings, LayoutDashboard, MessageSquareWarning, BookOpen, ImageIcon } from "lucide-react";
 
 const sidebarLinks = [
   { href: "/dashboard", label_mr: "विहंगावलोकन", label_en: "Overview", Icon: LayoutDashboard },
@@ -14,6 +14,7 @@ const sidebarLinks = [
   { href: "/dashboard/works", label_mr: "कामे", label_en: "Works", Icon: Hammer },
   { href: "/dashboard/events", label_mr: "कार्यक्रम", label_en: "Events", Icon: CalendarDays },
   { href: "/dashboard/officials", label_mr: "पदाधिकारी", label_en: "Officials", Icon: UserCheck },
+  { href: "/dashboard/leaders", label_mr: "नेते / पदाधिकारी", label_en: "Leaders", Icon: ImageIcon },
   { href: "/dashboard/applications", label_mr: "अर्ज", label_en: "Applications", Icon: ClipboardList },
   { href: "/dashboard/complaints", label_mr: "तक्रारी", label_en: "Complaints", Icon: MessageSquareWarning },
   { href: "/dashboard/schemes", label_mr: "शासन योजना", label_en: "Schemes", Icon: BookOpen },
@@ -27,8 +28,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const [lang, setLang] = useState<"mr" | "en">("mr");
 
+  const authorized = Boolean(user && (user.role === "admin" || user.role === "official"));
+
+  // Never call router during render — it triggers "Router action dispatched before initialization" in Next.js 16+.
+  useEffect(() => {
+    if (loading) return;
+    if (!authorized) {
+      router.replace("/login");
+    }
+  }, [loading, authorized, router]);
+
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  if (!user || (user.role !== "admin" && user.role !== "official")) { router.push("/login"); return null; }
+  if (!authorized || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-sm text-gray-500">
+        Redirecting to sign in…
+      </div>
+    );
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -45,7 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div>
               <p className="text-[11px] text-gray-600">Government of Maharashtra</p>
               <Link href="/" className="text-base font-semibold text-[#1f6f43]">
-                {lang === "mr" ? "ग्रामपंचायत बावी" : "Gram Panchayat Bavi"}
+                {lang === "mr" ? "ग्रामपंचायत बावी" : "Grampanchayat Bavi"}
               </Link>
             </div>
           </div>

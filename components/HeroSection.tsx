@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Users, Hammer, ClipboardList, School } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import { parseStat } from "@/lib/site-settings";
+import { sectionAnim } from "@/lib/section-anim";
 
 const heroImages = [
   "https://images.pexels.com/photos/33872281/pexels-photo-33872281.jpeg?auto=compress&cs=tinysrgb&w=1600",
@@ -29,11 +30,27 @@ export default function HeroSection({ language, heroIndex, setHeroIndex, setting
       id="home"
       className="relative min-h-[500px] flex flex-col items-center justify-center text-white overflow-hidden"
       style={{ backgroundImage: `url(${heroImages[heroIndex]})`, backgroundSize: "cover", backgroundPosition: "center" }}
-      initial={{ opacity: 0, y: 60 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}
+      {...sectionAnim}
     >
       <div className="absolute inset-0 bg-black/50" />
-      <button onClick={() => setHeroIndex((p) => (p === 0 ? heroImages.length - 1 : p - 1))} className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow z-20 cursor-pointer">‹</button>
-      <button onClick={() => setHeroIndex((p) => (p + 1) % heroImages.length)} className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow z-20 cursor-pointer">›</button>
+      <button
+        type="button"
+        suppressHydrationWarning
+        onClick={() => setHeroIndex((p) => (p === 0 ? heroImages.length - 1 : p - 1))}
+        className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow z-20 cursor-pointer"
+        aria-label="Previous slide"
+      >
+        ‹
+      </button>
+      <button
+        type="button"
+        suppressHydrationWarning
+        onClick={() => setHeroIndex((p) => (p + 1) % heroImages.length)}
+        className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow z-20 cursor-pointer"
+        aria-label="Next slide"
+      >
+        ›
+      </button>
       <div className="relative z-10 text-center px-6">
         <h2 className="text-4xl md:text-5xl font-bold mb-10 drop-shadow-lg">{title}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-4xl mx-auto">

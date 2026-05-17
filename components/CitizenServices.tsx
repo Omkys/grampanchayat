@@ -5,8 +5,7 @@ import { FileText, Landmark, Home, Droplets, AlertCircle, Building2, CreditCard,
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/lib/AuthContext";
-
-const anim = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, transition: { duration: 0.6 }, viewport: { once: true } };
+import { sectionAnim } from "@/lib/section-anim";
 
 const serviceTypeMap: Record<string, string> = {
   "जन्म दाखला अर्ज": "janm_dakhala",
@@ -81,7 +80,7 @@ export default function CitizenServices({ language }: { language: "mr" | "en" })
   };
 
   return (
-    <motion.section id="services" className="py-14 px-6 bg-[#fff7ed]" {...anim}>
+    <motion.section id="services" className="py-14 px-6 bg-[#fff7ed]" {...sectionAnim}>
       <h3 className="text-2xl font-semibold text-center mb-8 text-[#1f6f43] flex items-center justify-center gap-2">
         <Briefcase size={20} /> {language === "mr" ? "नागरिक सेवा" : "Citizen Services"}
       </h3>

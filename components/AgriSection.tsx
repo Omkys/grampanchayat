@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { CloudSun, Landmark } from "lucide-react";
 import { formatInr } from "@/lib/site-settings";
-
-const anim = { initial: { opacity: 0, y: 60 }, whileInView: { opacity: 1, y: 0 }, transition: { duration: 0.6 }, viewport: { once: true } };
+import { useLivePoll } from "@/lib/use-live-poll";
+import { sectionAnim } from "@/lib/section-anim";
 
 const forecast = [
   { day: "Mon", icon: "☀️", temp: "33°C" }, { day: "Tue", icon: "⛅", temp: "31°C" },
@@ -21,28 +21,52 @@ interface RateRow {
   unit: string | null;
 }
 
-const FALLBACK_RATES: RateRow[] = [
-  { id: "f1", crop_mr: "गहू", crop_en: "Wheat", price_inr: 2250, unit: "quintal" },
-  { id: "f2", crop_mr: "ज्वारी", crop_en: "Jowar", price_inr: 2800, unit: "quintal" },
-  { id: "f3", crop_mr: "बाजरी", crop_en: "Bajra", price_inr: 2400, unit: "quintal" },
-];
+async function fetchMarketRates(search: string): Promise<{ rates: RateRow[]; error: string | null }> {
+  const qs = search.trim() ? `?search=${encodeURIComponent(search.trim())}` : "";
+  const res = await fetch(`/api/market-rates${qs}`, { cache: "no-store" });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    const msg = body && typeof body === "object" && "error" in body && typeof body.error === "string" ? body.error : "Failed to load market rates";
+    return { rates: [], error: msg };
+  }
+  if (!Array.isArray(body)) {
+    return { rates: [], error: "Invalid market rates response" };
+  }
+  return { rates: body as RateRow[], error: null };
+}
 
 export default function AgriSection({ language }: { language: "mr" | "en" }) {
   const [search, setSearch] = useState("");
   const [startIdx, setStartIdx] = useState(0);
   const [rates, setRates] = useState<RateRow[]>([]);
   const [ratesLoading, setRatesLoading] = useState(true);
+  const [ratesError, setRatesError] = useState<string | null>(null);
+
+  const searchRef = useRef(search);
+  searchRef.current = search;
+
+  const loadRates = useCallback(async (term: string, silent = false) => {
+    if (!silent) {
+      setRatesLoading(true);
+      setRatesError(null);
+    }
+    const { rates: data, error } = await fetchMarketRates(term);
+    setRates(data);
+    setRatesError(error);
+    if (!silent) {
+      setRatesLoading(false);
+      setStartIdx(0);
+    }
+  }, []);
 
   useEffect(() => {
-    fetch("/api/market-rates")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: RateRow[]) => {
-        if (Array.isArray(data) && data.length > 0) setRates(data);
-        else setRates(FALLBACK_RATES);
-      })
-      .catch(() => setRates(FALLBACK_RATES))
-      .finally(() => setRatesLoading(false));
-  }, []);
+    const t = setTimeout(() => {
+      void loadRates(search, false);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search, loadRates]);
+
+  useLivePoll(() => loadRates(searchRef.current, true), { runOnMount: false });
 
   const rowLabel = (r: RateRow) => {
     const mr = r.crop_mr?.trim();
@@ -63,10 +87,10 @@ export default function AgriSection({ language }: { language: "mr" | "en" }) {
     return `${formatInr(p)}${language === "mr" ? ` / ${unitMr}` : ` / ${unitEn}`}`;
   };
 
-  const filtered = rates.filter((r) => rowLabel(r).toLowerCase().includes(search.toLowerCase()));
+  const page = rates.slice(startIdx, startIdx + 5);
 
   return (
-    <motion.section id="agri" className="py-24 px-6 bg-[#f8fafc] border-t-4 border-[#1f6f43] shadow-inner" {...anim}>
+    <motion.section id="agri" className="py-24 px-6 bg-[#f8fafc] border-t-4 border-[#1f6f43] shadow-inner" {...sectionAnim}>
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10">
         <div>
           <h3 className="text-xl font-semibold mb-6 text-[#1f6f43] flex items-center gap-2">
@@ -93,29 +117,63 @@ export default function AgriSection({ language }: { language: "mr" | "en" }) {
           <h3 className="text-xl font-semibold mb-6 text-[#1f6f43] flex items-center gap-2">
             <Landmark size={18} /> {language === "mr" ? "आजचा बाजारभाव" : "Today's Market Rates"}
           </h3>
-          <div className="bg-white rounded-xl shadow p-6 relative">
+          <div className="bg-white rounded-xl shadow p-6 relative min-h-[200px]">
+            <div className="flex mb-4 gap-2">
+              <input
+                type="text"
+                suppressHydrationWarning
+                placeholder={language === "mr" ? "पिक शोधा..." : "Search crop..."}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="flex-1 border rounded-md px-3 py-2 text-sm"
+              />
+              <span className="bg-[#1f6f43] text-white px-3 rounded-md text-sm flex items-center" aria-hidden>
+                🔍
+              </span>
+            </div>
+
+            {ratesError && <p className="text-sm text-red-600 mb-3">{ratesError}</p>}
+
             {ratesLoading ? (
               <p className="text-sm text-gray-500 py-4">{language === "mr" ? "भाव लोड होत आहेत…" : "Loading rates…"}</p>
+            ) : rates.length === 0 && !ratesError ? (
+              <p className="text-sm text-gray-500 py-4 text-center">
+                {language === "mr"
+                  ? "अद्याप बाजारभाव उपलब्ध नाहीत. प्रशासन पटलावरून जोडा."
+                  : "No market rates yet. Add them from the admin dashboard."}
+              </p>
             ) : (
               <>
-            <div className="flex mb-4 gap-2">
-              <input type="text" placeholder={language === "mr" ? "पिक शोधा..." : "Search crop..."} value={search} onChange={(e) => { setSearch(e.target.value); setStartIdx(0); }} className="flex-1 border rounded-md px-3 py-2 text-sm" />
-              <span className="bg-[#1f6f43] text-white px-3 rounded-md text-sm flex items-center" aria-hidden>🔍</span>
-            </div>
-            {startIdx > 0 && <button type="button" onClick={() => setStartIdx((p) => Math.max(p - 1, 0))} className="absolute top-2 left-1/2 -translate-x-1/2 bg-white shadow rounded-full px-3 py-1 text-sm cursor-pointer">↑</button>}
-            <table className="w-full text-sm">
-              <tbody>
-                {filtered.slice(startIdx, startIdx + 5).map((r) => (
-                  <tr key={r.id} className="border-b last:border-none">
-                    <td className="py-2">{rowLabel(r)}</td>
-                    <td className="text-right">{rowPrice(r)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {startIdx + 5 < filtered.length && (
-              <button type="button" onClick={() => setStartIdx((p) => Math.min(p + 1, Math.max(0, filtered.length - 5)))} className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-white shadow rounded-full px-3 py-1 text-sm cursor-pointer">↓</button>
-            )}
+                {startIdx > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setStartIdx((p) => Math.max(p - 1, 0))}
+                    className="absolute top-14 left-1/2 -translate-x-1/2 bg-white shadow rounded-full px-3 py-1 text-sm cursor-pointer z-10"
+                    aria-label={language === "mr" ? "वर" : "Previous"}
+                  >
+                    ↑
+                  </button>
+                )}
+                <table className="w-full text-sm">
+                  <tbody>
+                    {page.map((r) => (
+                      <tr key={r.id} className="border-b last:border-none">
+                        <td className="py-2 pr-2">{rowLabel(r)}</td>
+                        <td className="text-right whitespace-nowrap">{rowPrice(r)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {startIdx + 5 < rates.length && (
+                  <button
+                    type="button"
+                    onClick={() => setStartIdx((p) => Math.min(p + 1, Math.max(0, rates.length - 5)))}
+                    className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-white shadow rounded-full px-3 py-1 text-sm cursor-pointer z-10"
+                    aria-label={language === "mr" ? "खाली" : "Next"}
+                  >
+                    ↓
+                  </button>
+                )}
               </>
             )}
           </div>

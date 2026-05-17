@@ -1,8 +1,8 @@
 /** Key-value site copy from public.settings (via /api/settings). */
 
 export const DEFAULT_SITE_SETTINGS: Record<string, string> = {
-  gp_name_mr: "ग्रामपंचायत जावळके",
-  gp_name_en: "Grampanchayat Jawalke",
+  gp_name_mr: "ग्रामपंचायत बावी",
+  gp_name_en: "Grampanchayat Bavi",
   gp_mobile: "",
   gp_email: "",
   population: "1082",

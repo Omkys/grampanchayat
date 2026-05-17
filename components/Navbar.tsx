@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { LogIn, User, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -17,6 +18,11 @@ interface NavbarProps {
 export default function Navbar({ language, setLanguage, activeSection, gpNameMr, gpNameEn }: NavbarProps) {
   const { user, loading } = useAuthContext();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const nav = language === "mr"
     ? [
@@ -48,7 +54,10 @@ export default function Navbar({ language, setLanguage, activeSection, gpNameMr,
   const dashboardLink = user?.role === "admin" || user?.role === "official" ? "/dashboard" : "/citizen";
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-[#f97316]/30 via-white/70 to-[#1f6f43]/30 backdrop-blur-md shadow-md border-b border-white/30">
+    <header
+      suppressHydrationWarning
+      className="sticky top-0 z-50 bg-gradient-to-r from-[#f97316]/30 via-white/70 to-[#1f6f43]/30 backdrop-blur-md shadow-md border-b border-white/30"
+    >
       <div className="h-1.5 w-full bg-gradient-to-r from-[#f97316] via-white to-[#1f6f43]" />
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -56,7 +65,7 @@ export default function Navbar({ language, setLanguage, activeSection, gpNameMr,
           <div>
             <p className="text-[11px] text-gray-600">Government of Maharashtra</p>
             <h1 className="text-base font-semibold text-[#1f6f43]">
-              {language === "mr" ? (gpNameMr || "ग्रामपंचायत जावळके") : (gpNameEn || "Grampanchayat Jawalke")}
+              {language === "mr" ? (gpNameMr || "ग्रामपंचायत बावी") : (gpNameEn || "Grampanchayat Bavi")}
             </h1>
           </div>
         </div>
@@ -79,7 +88,9 @@ export default function Navbar({ language, setLanguage, activeSection, gpNameMr,
           <Button size="sm" variant={language === "mr" ? "default" : "outline"} onClick={() => setLanguage("mr")}>मराठी</Button>
           <Button size="sm" variant={language === "en" ? "default" : "outline"} onClick={() => setLanguage("en")}>EN</Button>
 
-          {loading ? null : user ? (
+          {!mounted || loading ? (
+            <div className="h-8 w-24 rounded-md bg-gray-100/80 animate-pulse" aria-hidden />
+          ) : user ? (
             <>
               <div className="hidden md:flex flex-col items-end text-xs leading-tight">
                 <span className="font-medium text-[#1f6f43]">{user.full_name || user.email}</span>

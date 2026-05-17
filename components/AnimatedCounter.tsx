@@ -36,7 +36,7 @@ export default function AnimatedCounter({ value, label, Icon }: { value: number;
   return (
     <div ref={ref} className="flex flex-col items-center">
       <Icon className="w-8 h-8 mb-2 text-white/80" />
-      <span className="text-3xl font-bold">{count.toLocaleString()}</span>
+      <span className="text-3xl font-bold">{count.toLocaleString("en-IN")}</span>
       <span className="text-sm mt-1 text-white/80">{label}</span>
     </div>
   );

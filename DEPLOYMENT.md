@@ -1,11 +1,11 @@
-# Deployment Guide — Grampanchayat Jawalke
+# Deployment Guide — Grampanchayat Bavi
 
 ## 1. Vercel Deployment
 
 ### Step 1: Import Project
 1. Go to [vercel.com/new](https://vercel.com/new)
 2. Click **"Import Git Repository"**
-3. Select **Nikitanikam-web/grampanchayat-jawalke**
+3. Select **Nikitanikam-web/grampanchayat-bavi**
 4. Click **Import**
 
 ### Step 2: Configure
@@ -17,12 +17,12 @@
 
 ### Step 3: Wait for Build
 - Vercel will install deps, build, and deploy
-- You'll get a URL like `grampanchayat-jawalke.vercel.app`
+- You'll get a URL like `grampanchayat-bavi.vercel.app`
 - The `vercel.json` already targets Mumbai region (`bom1`) for low latency
 
 ### Step 4: Custom Domain (Optional)
 1. Go to Project → Settings → Domains
-2. Add your domain (e.g., `gpjawalke.in`)
+2. Add your domain (e.g., `gpbavi.in`)
 3. Update DNS records as shown by Vercel
 
 ---
@@ -34,7 +34,7 @@
 2. Click **New Project**
 3. Choose your organization
 4. Fill in:
-   - **Name:** `grampanchayat-jawalke`
+   - **Name:** `grampanchayat-bavi`
    - **Database Password:** (save this somewhere safe)
    - **Region:** `South Asia (Mumbai)` — ap-south-1
 5. Click **Create new project**
@@ -217,10 +217,10 @@ Run this in SQL Editor:
 ```sql
 -- Default settings
 INSERT INTO settings (key, value) VALUES
-  ('gp_name_mr', 'ग्रामपंचायत- जावळके'),
-  ('gp_name_en', 'Grampanchayat Jawalke'),
+  ('gp_name_mr', 'ग्रामपंचायत बावी'),
+  ('gp_name_en', 'Grampanchayat Bavi'),
   ('gp_mobile', '9876543210'),
-  ('gp_email', 'gp.jawalke@gov.in'),
+  ('gp_email', 'gp.bavi@gov.in'),
   ('population', '2500'),
   ('total_works', '120'),
   ('total_schemes', '45'),
@@ -339,5 +339,5 @@ CREATE POLICY "Users update own profile" ON profiles FOR UPDATE USING (id = auth
 |---------|-----|
 | Vercel Dashboard | https://vercel.com/dashboard |
 | Supabase Dashboard | https://supabase.com/dashboard |
-| GitHub Repo | https://github.com/Nikitanikam-web/grampanchayat-jawalke |
+| GitHub Repo | https://github.com/Nikitanikam-web/grampanchayat-bavi |
 | Live Site | *(your Vercel URL after deploy)* |

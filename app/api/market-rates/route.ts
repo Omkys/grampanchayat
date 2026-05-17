@@ -1,14 +1,22 @@
-import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { getSupabaseServer } from "@/lib/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = getSupabaseAdmin();
-    const search = req.nextUrl.searchParams.get("search") || "";
+    const supabase = getSupabaseServer();
+    const search = req.nextUrl.searchParams.get("search")?.trim() || "";
     let query = supabase.from("market_rates").select("*");
-    if (search) query = query.or(`crop_mr.ilike.%${search}%,crop_en.ilike.%${search}%`);
-    const { data, error } = await query.order("updated_at", { ascending: false });
+    if (search) {
+      const term = search.replace(/[%_]/g, "");
+      if (term) query = query.or(`crop_mr.ilike.%${term}%,crop_en.ilike.%${term}%`);
+    }
+    const { data, error } = await query.order("crop_en", { ascending: true });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
-  } catch { return NextResponse.json({ error: "Server error" }, { status: 500 }); }
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Server error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

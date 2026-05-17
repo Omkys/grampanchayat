@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useLivePoll } from "@/lib/use-live-poll";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import LeadershipStrip from "@/components/LeadershipStrip";
@@ -21,12 +22,21 @@ export default function HomePage() {
   const [activeSection, setActiveSection] = useState("home");
   const [siteSettings, setSiteSettings] = useState(() => mergeSiteSettings({}));
 
-  useEffect(() => {
-    fetch("/api/settings")
-      .then((r) => (r.ok ? r.json() : {}))
-      .then((data) => setSiteSettings(mergeSiteSettings(data)))
-      .catch(() => setSiteSettings(mergeSiteSettings({})));
+  const loadSettings = useCallback(async () => {
+    try {
+      const res = await fetch("/api/settings", { cache: "no-store" });
+      const data = res.ok ? await res.json() : {};
+      setSiteSettings(mergeSiteSettings(data));
+    } catch {
+      setSiteSettings(mergeSiteSettings({}));
+    }
   }, []);
+
+  useEffect(() => {
+    void loadSettings();
+  }, [loadSettings]);
+
+  useLivePoll(loadSettings, { runOnMount: false });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,7 +62,7 @@ export default function HomePage() {
         gpNameEn={siteSettings.gp_name_en}
       />
       <HeroSection language={language} heroIndex={heroIndex} setHeroIndex={setHeroIndex} settings={siteSettings} />
-      <LeadershipStrip />
+      <LeadershipStrip language={language} />
       <NoticeAndSchemes language={language} />
       <AboutSection language={language} aboutMr={siteSettings.about_mr} aboutEn={siteSettings.about_en} />
       <CitizenServices language={language} />

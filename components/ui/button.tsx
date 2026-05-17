@@ -10,6 +10,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     return (
       <button
+        suppressHydrationWarning
         className={cn(
           "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
           variant === "default" && "bg-[#1f6f43] text-white hover:bg-[#1f6f43]/90",
